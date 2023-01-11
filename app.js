@@ -1,41 +1,42 @@
-// import useful packages
-const express = require("express");
+// import usefull packages
+const express = require("express")
+require('dotenv').config()
 
+//import models
+const db = require("./models/index.js")
 
-// import models
-const db = require('./models')
+const {items, users} = db
 
-// import controllers
-const UsersController = require('./controllers/usersController')
-const ItemsController = require('./controllers/itemsController')
+// import middlewares
+const authMiddleware = require('./middleware/auth')
 
-// initializing controllers
-const usersController = new UsersController(db.users)
-const itemsController = new ItemsController(db.items)
+//import controllers
+const UserController = require("./controllers/userController")
+const ItemsController = require("./controllers/itemsController")
 
-// import routers
-const Usersrouter = require('./routers/usersRouter')
-const ItemsRouter = require('./routers/itemsRouter')
+//initialize controllers
+const usersController = new UserController(users)
+const itemsController = new ItemsController(items)
 
-// intialize routers
-const usersRouter = new Usersrouter(usersController).routes()
+//import routers
+const ItemsRouter = require("./routers/itemsRouter")
+const UsersRouter = require("./routers/usersRouter")
+
+//initialize routers
+const usersRouter = new UsersRouter(usersController, authMiddleware).routes()
 const itemsRouter = new ItemsRouter(itemsController).routes()
 
-// Putting express together below this line
-const app = express();
+const app = express()
 app.use(express.json())
-app.use(express.urlencoded({ extended: false }))
+app.use(express.urlencoded({extended:false}))
+app.use("/users", usersRouter)
 
-app.use('/users', usersRouter)
-app.use('/items', itemsRouter)
+// app.use(authMiddleware)
 
-const PORT = process.env.PORT || 8080;
-
-app.listen(PORT, () => console.log(`App listening on port ${PORT}`));
+app.use("/items", itemsRouter)
 
 
-// goal of this backend
 
-// User table
-// items table
-// let users keep track of their items
+const PORT = process.env.PORT || 8080
+
+app.listen(PORT, ()=>{console.log(`App listening on port ${PORT}`)})
