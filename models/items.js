@@ -14,6 +14,8 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(models.users, {foreignKey:"userId"})
     }
   }
+
+  //add new comments
   items.init({
     name: {
       type: DataTypes.STRING,
